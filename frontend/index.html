@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Curated Video Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom fonts for each category */
+    .font-home {
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+    .font-action {
+      font-family: 'Arial Black', Gadget, sans-serif;
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+    .font-science {
+      font-family: 'Algerian', 'Arial Black', sans-serif;
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+    .font-funny {
+      font-family: 'Forte', cursive, sans-serif;
+      font-weight: bold;
+      text-transform: capitalize;
+      font-size: 1.5rem; /* bigger font size override */
+    }
+    .font-horror {
+      font-family: 'Brush Script MT', cursive, sans-serif;
+      font-weight: bold;
+      text-transform: capitalize;
+      font-size: 1.5rem; /* bigger font size override */
+    }
+    .font-premium {
+      font-family: 'Copperplate Gothic Light', 'Copperplate', fantasy, serif;
+      font-weight: bold;
+      text-transform: capitalize;
+      font-size: 1.5rem; /* bigger font size override */
+    }
+    .font-thriller {
+      font-family: 'Castellar', fantasy, serif;
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+    .font-self-improvement {
+      font-family: 'Copperplate Gothic Bold', 'Copperplate', fantasy, serif;
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+    button {
+      text-transform: capitalize;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-900 p-4">
+
+  <!-- Header -->
+  <header class="text-center mb-8">
+    <h1 class="text-4xl font-bold">🎥 Curated Video Hub</h1>
+    <p class="text-lg text-gray-600">Explore categories of high-quality videos</p>
+  </header>
+
+  <!-- Full width nav bar -->
+  <nav id="subcategories" class="flex justify-between mb-6 bg-white rounded shadow overflow-hidden text-xl">
+    <button onclick="fetchVideos('Home')" class="flex-1 py-3 hover:bg-gray-100 border-r border-gray-300 font-home">🏠 Home</button>
+    <button onclick="fetchVideos('Action')" class="flex-1 py-3 hover:bg-gray-100 border-r border-gray-300 font-action">Action</button>
+    <button onclick="fetchVideos('Science')" class="flex-1 py-3 hover:bg-gray-100 border-r border-gray-300 font-science">Science</button>
+    <button onclick="fetchVideos('Funny')" class="flex-1 py-3 hover:bg-gray-100 border-r border-gray-300 font-funny">Funny</button>
+    <button onclick="fetchVideos('Horror')" class="flex-1 py-3 hover:bg-gray-100 border-r border-gray-300 font-horror">Horror</button>
+    <button onclick="fetchVideos('Premium')" class="flex-1 py-3 hover:bg-gray-100 border-r border-gray-300 font-premium">Premium</button>
+    <button onclick="fetchVideos('Thriller')" class="flex-1 py-3 hover:bg-gray-100 border-r border-gray-300 font-thriller">Thriller</button>
+    <button onclick="fetchVideos('Self Improvement')" class="flex-1 py-3 hover:bg-gray-100 font-self-improvement">Self Improvement</button>
+  </nav>
+
+  <!-- Content sections -->
+
+  <!-- Home Content -->
+  <section id="homeSection" class="mb-8">
+    <p class="text-center text-gray-600">Welcome! Select a category above to explore curated videos.</p>
+  </section>
+
+  <!-- Video Section -->
+  <section id="videos" class="hidden">
+    <button onclick="showHome()" class="mb-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">← Back to Home</button>
+    <h2 id="videoTitle" class="text-2xl font-bold mb-4"></h2>
+
+    <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <!-- Videos will be dynamically injected here -->
+    </div>
+  </section>
+
+  <script>
+    async function fetchVideos(categoryName) {
+      if(categoryName === 'Home') {
+        showHome();
+        return;
+      }
+
+      // Update UI
+      document.getElementById('videoTitle').textContent = categoryName + ' Videos';
+      document.getElementById('homeSection').classList.add('hidden');
+      document.getElementById('videos').classList.remove('hidden');
+
+      const videoGrid = document.getElementById('videoGrid');
+      videoGrid.innerHTML = 'Loading videos...';
+
+      try {
+        // Call your backend API - adjust the URL as per your backend setup
+        const response = await fetch(`/api/videos?category=${encodeURIComponent(categoryName)}`);
+        if(!response.ok) throw new Error('Network response was not ok');
+
+        const videos = await response.json();
+
+        if(!Array.isArray(videos) || videos.length === 0) {
+          videoGrid.innerHTML = '<p class="col-span-full text-center text-gray-500">No videos found for this category.</p>';
+          return;
+        }
+
+        // Clear grid
+        videoGrid.innerHTML = '';
+
+        // Create video items dynamically
+        videos.forEach(video => {
+          const videoDiv = document.createElement('div');
+          videoDiv.className = 'bg-white rounded shadow p-3 hover:shadow-lg transition';
+
+          videoDiv.innerHTML = `
+            <a href="${video.videoURL}" target="_blank" rel="noopener noreferrer">
+              <img src="${video.thumbnailURL}" alt="${video.title}" class="w-full rounded cursor-pointer" />
+            </a>
+            <h3 class="mt-2 text-center font-semibold">${video.title}</h3>
+          `;
+
+          videoGrid.appendChild(videoDiv);
+        });
+
+      } catch(err) {
+        videoGrid.innerHTML = '<p class="col-span-full text-center text-red-500">Error loading videos.</p>';
+        console.error('Fetch error:', err);
+      }
+    }
+
+    function showHome() {
+      document.getElementById('videos').classList.add('hidden');
+      document.getElementById('homeSection').classList.remove('hidden');
+    }
+  </script>
+
+</body>
+</html>
