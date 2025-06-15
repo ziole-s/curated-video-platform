@@ -17,4 +17,13 @@ This platform allows users to:
 - **Version Control:** Git + GitHub
 
 ## 📁 Project Structure
+project-root/
+├── backend.py                
+├── data_extraction.py        
+├── video_base/               
+│   ├── action_category.json
+│   └── ...
+└── frontend/                 
+    ├── index.html
+    
 
